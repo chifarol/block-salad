@@ -1,0 +1,82 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "block-salad/tabs",
+	"version": "0.1.0",
+	"title": "tabs",
+	"keywords": ["Block Salad", "tabs"],
+	"category": "blocksalad",
+	"icon": "smiley",
+	"description": "Example block scaffolded with Create Block tool.",
+	"attributes": {
+		"tabTitles": {
+			"type": "array",
+			"default": [""]
+		},
+		"activeTab": {
+			"type": "number",
+			"default": 0
+		},
+		"tabStyle": {
+			"type": "string",
+			"default": "Tabbed"
+		},
+		"activeColor": {
+			"type": "string",
+			"default": "#000000"
+		},
+		"inactiveColor": {
+			"type": "string",
+			"default": "#2e2e2e"
+		},
+		"activeBGColor": {
+			"type": "string",
+			"default": "#fafafa"
+		},
+		"inactiveBGColor": {
+			"type": "string",
+			"default": "#dddddd"
+		},
+		"tabTitlePadding": {
+			"type": "number",
+			"default": 16
+		},
+		"tabContentPadding": {
+			"type": "number",
+			"default": 16
+		},
+		"majorGap": {
+			"type": "string",
+			"default": "0"
+		},
+		"minorGap": {
+			"type": "string",
+			"default": "0"
+		},
+		"border": {
+			"type": "object",
+			"default": { "style": "solid", "width": "1px" }
+		},
+		"borderRadius": {
+			"type": "string",
+			"default": "0"
+		},
+		"strokePosition": {
+			"type": "string",
+			"default": "Top"
+		},
+		"tabPosition": {
+			"type": "string",
+			"default": "flex-start"
+		}
+	},
+	"providesContext": { "block-salad/activeTab": "activeTab" },
+	"supports": {
+		"html": false
+	},
+	"textdomain": "block-salad",
+	"editorScript": "file:./index.js",
+	"viewScript": "file:./frontend.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}

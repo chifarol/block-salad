@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "block-salad/tab-content",
+	"title": "tab content",
+	"description": "contents of tab",
+	"category": "blocksalad",
+	"attributes": {
+		"index": {
+			"type": "number",
+			"default": 0
+		},
+		"display": {
+			"type": "string",
+			"default": "none"
+		}
+	},
+	"usesContext": ["block-salad/activeTab"],
+	"editorScript": "file:./index.js",
+	"supports": {
+		"inserter": false
+	}
+}
