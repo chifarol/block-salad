@@ -4,7 +4,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
  */
 import { __ } from "@wordpress/i18n";
-
+ 
 /**
  * React hook that is used to mark the block wrapper element.
  * It provides all the necessary props like the class name.
@@ -33,6 +33,53 @@ import "./editor.scss";
  *
  * @return {WPElement} Element to render.
  */
+ export function tabTitleStyle(attributes,state) {
+	let activeStyle = {
+		padding: `${attributes.tabTitlePadding}px`,
+		width:`${attributes.tabTitleWidth}px`
+	};
+	let inactiveStyle = {
+		padding: `${attributes.tabTitlePadding}px`,
+		width:`${attributes.tabTitleWidth}px`
+	};
+	switch (attributes.tabStyle) {
+		case "Tabbed":
+			if (state === "active") {
+				activeStyle["backgroundColor"]= attributes.activeBGColor;
+				activeStyle["color"]= attributes.activeColor;
+				activeStyle["borderRadius"] = attributes.borderRadius;
+				activeStyle["backgroundColor"] = attributes.activeBGColor;
+				activeStyle["color"] = attributes.activeColor;
+				return activeStyle;
+			} else {
+				 inactiveStyle['backgroundColor']=attributes.inactiveBGColor;
+				 inactiveStyle["color"]= attributes.inactiveColor;
+				return inactiveStyle;
+			}
+			break;
+		case "Lined":
+			if (state === "active") {
+				const borderString = `${attributes.activeBorder.width} ${
+					attributes.activeBorder.style
+				} ${attributes.activeBorder.color || attributes.activeColor}`;
+				activeStyle["borderRadius"] = attributes.borderRadius;
+				activeStyle[`border${attributes.strokePosition}`] = borderString;
+				console.log("lined style", activeStyle);
+				return activeStyle;
+			} else {
+				const borderString = `${attributes.inactiveBorder.width} ${
+					attributes.inactiveBorder.style
+				} ${attributes.inactiveBorder.color || attributes.inactiveColor}`;
+				inactiveStyle[`border${attributes.strokePosition}`] = borderString;
+				return inactiveStyle;
+			}
+			break;
+		
+
+		default:
+			break;
+	}
+}
 export default function Edit({
 	attributes,
 	setAttributes,
@@ -90,75 +137,21 @@ export default function Edit({
 
 		console.log("new title", newTabTitles);
 	}
-	function tabTitleStyle(state) {
-		let activeStyle = {
-			backgroundColor: attributes.activeBGColor,
-			color: attributes.activeColor,
-			padding: `${attributes.tabTitlePadding}px`,
-		};
-		let inactiveStyle = {
-			backgroundColor: attributes.inactiveBGColor,
-			color: attributes.inactiveColor,
-			padding: `${attributes.tabTitlePadding}px`,
-		};
-		switch (attributes.tabStyle) {
-			case "Tabbed":
-				if (state === "active") {
-					activeStyle["borderColor"] = attributes.border.color;
-					activeStyle["borderStyle"] = attributes.border.style;
-					activeStyle["borderWidth"] = attributes.border.width;
-					activeStyle["borderRadius"] = attributes.borderRadius;
-					activeStyle["backgroundColor"] = attributes.activeBGColor;
-					activeStyle["color"] = attributes.activeColor;
-					return activeStyle;
-				} else {
-					return inactiveStyle;
-				}
-				break;
-			case "Underlined":
-				if (state === "active") {
-					const bordr = `${attributes.border.width} ${
-						attributes.border.style
-					} ${attributes.border.color || attributes.activeColor}`;
-					activeStyle["borderRadius"] = attributes.borderRadius;
-					activeStyle[`border${attributes.strokePosition}`] = bordr;
-					console.log("underline style", activeStyle);
-					return activeStyle;
-				} else {
-					return inactiveStyle;
-				}
-				break;
-			case "Pills":
-				if (state === "active") {
-					activeStyle["borderColor"] = attributes.border.color;
-					activeStyle["borderStyle"] = attributes.border.style;
-					activeStyle["borderWidth"] = attributes.border.width;
-					activeStyle["borderRadius"] = attributes.borderRadius;
-					return activeStyle;
-				} else {
-					return inactiveStyle;
-				}
-				break;
-
-			default:
-				break;
-		}
-	}
+	
 
 	return (
 		<div {...useBlockProps()}>
 			<div
 				className="block-salad-tabs-container"
-				style={{ gap: `${attributes.majorGap}px` }}
+				style={{ gap: `${attributes.majorGap}px`,flexDirection:`${attributes.orientation==="Horizontal"?"column":"row"}` }}
 			>
-				<p onClick={getTabTitles}>
-					{__("Block Salad – hello from the editor!", "block-salad")}
-				</p>
 				<div
 					className={`block-salad-tab-titles-container`}
 					style={{
 						justifyContent: attributes.tabPosition,
 						gap: `${attributes.minorGap}px`,
+						flexDirection:`${attributes.orientation==="Horizontal"?"row":"column"}`,
+						
 					}}
 				>
 					{tabTitles.map((title, index) => (
@@ -171,10 +164,11 @@ export default function Edit({
 								onChange={(value) => updateTabTitlesInput(value, index)}
 								style={
 									index === activeTab
-										? tabTitleStyle("active")
-										: tabTitleStyle("inactive")
+										? tabTitleStyle(attributes,"active")
+										: tabTitleStyle(attributes,"inactive")
 								}
 							/>
+
 						</>
 					))}
 					<Icon icon={plus} onClick={addTab} style={{ cursor: "pointer" }} />
@@ -182,7 +176,8 @@ export default function Edit({
 				<div
 					className="block-salad-tab-content-container"
 					style={{
-						backgroundColor: attributes.activeBGColor,
+						backgroundColor: attributes.tabStyle=="Tabbed"&&attributes.activeBGColor,
+						...(attributes.tabStyle==='Tabbed' && {color: attributes.activeColor}),
 						padding: `${attributes.tabContentPadding}px`,
 					}}
 				>

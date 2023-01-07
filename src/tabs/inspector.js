@@ -11,6 +11,7 @@ import {
 	SelectControl,
 	ColorPicker,
 	__experimentalInputControl as InputControl,
+	__experimentalNumberControl as NumberControl,
 	__experimentalBorderControl as BorderControl,
 } from "@wordpress/components";
 const Inspector = ({ attributes, setAttributes }) => {
@@ -22,12 +23,12 @@ const Inspector = ({ attributes, setAttributes }) => {
 		{
 			value: attributes.activeColor,
 			onChange: (value) => setAttributes({ activeColor: value }),
-			label: __("Active Color"),
+			label: __("Active Text Color")
 		},
 		{
 			value: attributes.inactiveColor,
 			onChange: (value) => setAttributes({ inactiveColor: value }),
-			label: __("Inactive Color"),
+			label: __("Inactive Text Color"),
 		},
 		{
 			value: attributes.activeBGColor,
@@ -53,7 +54,16 @@ const Inspector = ({ attributes, setAttributes }) => {
 						<Flex direction="column">
 							<FlexBlock>
 								<SelectControl
-									options={["Tabbed", "Pills", "Underlined"].map((a) => ({
+									options={["Horizontal", "Vertical"].map((a) => ({
+										value: __(a),
+										label: a,
+									}))}
+									onChange={(value=>setAttributes({orientation:value}))}
+									value={attributes.orientation}
+									label="Orientation"
+								/>
+								<SelectControl
+									options={["Tabbed", "Lined"].map((a) => ({
 										value: __(a),
 										label: a,
 									}))}
@@ -61,17 +71,9 @@ const Inspector = ({ attributes, setAttributes }) => {
 									value={attributes.tabStyle}
 									label="Tab Style"
 								/>
+								
 
-								<BorderControl
-									value={{
-										color: attributes.border.color || attributes.activeColor,
-										style: attributes.border.style,
-										width: attributes.border.width,
-									}}
-									label="Border"
-									onChange={(value) => setAttributes({ border: value })}
-								/>
-								{attributes.tabStyle === "Underlined" && (
+								{attributes.tabStyle === "Lined" && (<>
 									<SelectControl
 										options={["Left", "Top", "Right", "Bottom"].map((a) => ({
 											value: a,
@@ -83,16 +85,44 @@ const Inspector = ({ attributes, setAttributes }) => {
 										value={attributes.strokePosition}
 										label="Stroke Position:"
 									/>
+									<BorderControl
+								value={{
+									color: attributes.activeBorder.color || attributes.activeColor,
+									style: attributes.activeBorder.style,
+									width: attributes.activeBorder.width,
+								}}
+								enableAlpha={true}
+								label="Active Liner"
+								onChange={(value) => setAttributes({ activeBorder: value })}
+							/>
+								<BorderControl
+								value={{
+									color: attributes.inactiveBorder.color || attributes.inactiveColor,
+									style: attributes.inactiveBorder.style,
+									width: attributes.inactiveBorder.width,
+								}}
+								enableAlpha={true}
+								label="Inactive Liner"
+								onChange={(value) => setAttributes({ inactiveBorder: value })}
+							/>
+							</>
 								)}
 								<SelectControl
 									options={[
-										{ value: "flex-start", label: "left" },
-										{ value: "center", label: "center" },
-										{ value: "flex-end", label: "right" },
+										{ value: "flex-start", label: "Start" },
+										{ value: "center", label: "Center" },
+										{ value: "flex-end", label: "End" },
 									]}
 									onChange={setTabPosition}
 									value={attributes.tabPosition}
 									label="Justify: "
+								/>
+								<NumberControl
+									suffix="px"
+									onChange={(value=>setAttributes({tabTitleWidth:value}))}
+									value={attributes.tabTitleWidth}
+									label="Tab Title Width"
+									labelPosition="top"
 								/>
 							</FlexBlock>
 							<FlexBlock>
@@ -126,8 +156,9 @@ const Inspector = ({ attributes, setAttributes }) => {
 						</Flex>
 					</PanelRow>
 				</PanelBody>
-				<PanelBody title="Tab Titles">
+				<PanelBody title="More">
 					<PanelRow>
+						<Flex direction="column">
 						<InputControl
 							type="number"
 							label="Tab Content Padding"
@@ -146,6 +177,7 @@ const Inspector = ({ attributes, setAttributes }) => {
 							labelPosition="side"
 							suffix="px"
 						/>
+						</Flex>
 					</PanelRow>
 				</PanelBody>
 			</Panel>

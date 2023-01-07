@@ -22,6 +22,14 @@
       "type": "number",
       "default": 0
     },
+    "orientation": {
+      "type": "string",
+      "default": "Horizontal"
+    },
+    "tabTitleWidth": {
+      "type": "number",
+      "default": 100
+    },
     "tabStyle": {
       "type": "string",
       "default": "Tabbed"
@@ -32,7 +40,7 @@
     },
     "inactiveColor": {
       "type": "string",
-      "default": "#2e2e2e"
+      "default": "#7e7e7e"
     },
     "activeBGColor": {
       "type": "string",
@@ -40,7 +48,7 @@
     },
     "inactiveBGColor": {
       "type": "string",
-      "default": "#dddddd"
+      "default": "#eeeeee"
     },
     "tabTitlePadding": {
       "type": "number",
@@ -58,7 +66,14 @@
       "type": "string",
       "default": "0"
     },
-    "border": {
+    "activeBorder": {
+      "type": "object",
+      "default": {
+        "style": "solid",
+        "width": "4px"
+      }
+    },
+    "inactiveBorder": {
       "type": "object",
       "default": {
         "style": "solid",

@@ -87,7 +87,8 @@ const plus = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Edit)
+/* harmony export */   "default": () => (/* binding */ Edit),
+/* harmony export */   "tabTitleStyle": () => (/* binding */ tabTitleStyle)
 /* harmony export */ });
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
@@ -134,6 +135,47 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @return {WPElement} Element to render.
  */
+function tabTitleStyle(attributes, state) {
+  let activeStyle = {
+    padding: `${attributes.tabTitlePadding}px`,
+    width: `${attributes.tabTitleWidth}px`
+  };
+  let inactiveStyle = {
+    padding: `${attributes.tabTitlePadding}px`,
+    width: `${attributes.tabTitleWidth}px`
+  };
+  switch (attributes.tabStyle) {
+    case "Tabbed":
+      if (state === "active") {
+        activeStyle["backgroundColor"] = attributes.activeBGColor;
+        activeStyle["color"] = attributes.activeColor;
+        activeStyle["borderRadius"] = attributes.borderRadius;
+        activeStyle["backgroundColor"] = attributes.activeBGColor;
+        activeStyle["color"] = attributes.activeColor;
+        return activeStyle;
+      } else {
+        inactiveStyle['backgroundColor'] = attributes.inactiveBGColor;
+        inactiveStyle["color"] = attributes.inactiveColor;
+        return inactiveStyle;
+      }
+      break;
+    case "Lined":
+      if (state === "active") {
+        const borderString = `${attributes.activeBorder.width} ${attributes.activeBorder.style} ${attributes.activeBorder.color || attributes.activeColor}`;
+        activeStyle["borderRadius"] = attributes.borderRadius;
+        activeStyle[`border${attributes.strokePosition}`] = borderString;
+        console.log("lined style", activeStyle);
+        return activeStyle;
+      } else {
+        const borderString = `${attributes.inactiveBorder.width} ${attributes.inactiveBorder.style} ${attributes.inactiveBorder.color || attributes.inactiveColor}`;
+        inactiveStyle[`border${attributes.strokePosition}`] = borderString;
+        return inactiveStyle;
+      }
+      break;
+    default:
+      break;
+  }
+}
 function Edit(_ref) {
   let {
     attributes,
@@ -188,69 +230,18 @@ function Edit(_ref) {
     });
     console.log("new title", newTabTitles);
   }
-  function tabTitleStyle(state) {
-    let activeStyle = {
-      backgroundColor: attributes.activeBGColor,
-      color: attributes.activeColor,
-      padding: `${attributes.tabTitlePadding}px`
-    };
-    let inactiveStyle = {
-      backgroundColor: attributes.inactiveBGColor,
-      color: attributes.inactiveColor,
-      padding: `${attributes.tabTitlePadding}px`
-    };
-    switch (attributes.tabStyle) {
-      case "Tabbed":
-        if (state === "active") {
-          activeStyle["borderColor"] = attributes.border.color;
-          activeStyle["borderStyle"] = attributes.border.style;
-          activeStyle["borderWidth"] = attributes.border.width;
-          activeStyle["borderRadius"] = attributes.borderRadius;
-          activeStyle["backgroundColor"] = attributes.activeBGColor;
-          activeStyle["color"] = attributes.activeColor;
-          return activeStyle;
-        } else {
-          return inactiveStyle;
-        }
-        break;
-      case "Underlined":
-        if (state === "active") {
-          const bordr = `${attributes.border.width} ${attributes.border.style} ${attributes.border.color || attributes.activeColor}`;
-          activeStyle["borderRadius"] = attributes.borderRadius;
-          activeStyle[`border${attributes.strokePosition}`] = bordr;
-          console.log("underline style", activeStyle);
-          return activeStyle;
-        } else {
-          return inactiveStyle;
-        }
-        break;
-      case "Pills":
-        if (state === "active") {
-          activeStyle["borderColor"] = attributes.border.color;
-          activeStyle["borderStyle"] = attributes.border.style;
-          activeStyle["borderWidth"] = attributes.border.width;
-          activeStyle["borderRadius"] = attributes.borderRadius;
-          return activeStyle;
-        } else {
-          return inactiveStyle;
-        }
-        break;
-      default:
-        break;
-    }
-  }
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tabs-container",
     style: {
-      gap: `${attributes.majorGap}px`
+      gap: `${attributes.majorGap}px`,
+      flexDirection: `${attributes.orientation === "Horizontal" ? "column" : "row"}`
     }
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    onClick: getTabTitles
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Block Salad – hello from the editor!", "block-salad")), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: `block-salad-tab-titles-container`,
     style: {
       justifyContent: attributes.tabPosition,
-      gap: `${attributes.minorGap}px`
+      gap: `${attributes.minorGap}px`,
+      flexDirection: `${attributes.orientation === "Horizontal" ? "row" : "column"}`
     }
   }, tabTitles.map((title, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
     value: title,
@@ -258,7 +249,7 @@ function Edit(_ref) {
     placeholder: "Enter Title",
     onClick: () => onClickTabTitle(index),
     onChange: value => updateTabTitlesInput(value, index),
-    style: index === activeTab ? tabTitleStyle("active") : tabTitleStyle("inactive")
+    style: index === activeTab ? tabTitleStyle(attributes, "active") : tabTitleStyle(attributes, "inactive")
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"], {
     icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"],
     onClick: addTab,
@@ -268,7 +259,10 @@ function Edit(_ref) {
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tab-content-container",
     style: {
-      backgroundColor: attributes.activeBGColor,
+      backgroundColor: attributes.tabStyle == "Tabbed" && attributes.activeBGColor,
+      ...(attributes.tabStyle === 'Tabbed' && {
+        color: attributes.activeColor
+      }),
       padding: `${attributes.tabContentPadding}px`
     }
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InnerBlocks, {
@@ -419,13 +413,13 @@ const Inspector = _ref => {
     onChange: value => setAttributes({
       activeColor: value
     }),
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Active Color")
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Active Text Color")
   }, {
     value: attributes.inactiveColor,
     onChange: value => setAttributes({
       inactiveColor: value
     }),
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Inactive Color")
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Inactive Text Color")
   }, {
     value: attributes.activeBGColor,
     onChange: value => setAttributes({
@@ -450,24 +444,24 @@ const Inspector = _ref => {
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Flex, {
     direction: "column"
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FlexBlock, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
-    options: ["Tabbed", "Pills", "Underlined"].map(a => ({
+    options: ["Horizontal", "Vertical"].map(a => ({
+      value: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)(a),
+      label: a
+    })),
+    onChange: value => setAttributes({
+      orientation: value
+    }),
+    value: attributes.orientation,
+    label: "Orientation"
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    options: ["Tabbed", "Lined"].map(a => ({
       value: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)(a),
       label: a
     })),
     onChange: setTabStyle,
     value: attributes.tabStyle,
     label: "Tab Style"
-  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalBorderControl, {
-    value: {
-      color: attributes.border.color || attributes.activeColor,
-      style: attributes.border.style,
-      width: attributes.border.width
-    },
-    label: "Border",
-    onChange: value => setAttributes({
-      border: value
-    })
-  }), attributes.tabStyle === "Underlined" && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+  }), attributes.tabStyle === "Lined" && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
     options: ["Left", "Top", "Right", "Bottom"].map(a => ({
       value: a,
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)(a)
@@ -477,20 +471,50 @@ const Inspector = _ref => {
     }),
     value: attributes.strokePosition,
     label: "Stroke Position:"
-  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalBorderControl, {
+    value: {
+      color: attributes.activeBorder.color || attributes.activeColor,
+      style: attributes.activeBorder.style,
+      width: attributes.activeBorder.width
+    },
+    enableAlpha: true,
+    label: "Active Liner",
+    onChange: value => setAttributes({
+      activeBorder: value
+    })
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalBorderControl, {
+    value: {
+      color: attributes.inactiveBorder.color || attributes.inactiveColor,
+      style: attributes.inactiveBorder.style,
+      width: attributes.inactiveBorder.width
+    },
+    enableAlpha: true,
+    label: "Inactive Liner",
+    onChange: value => setAttributes({
+      inactiveBorder: value
+    })
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
     options: [{
       value: "flex-start",
-      label: "left"
+      label: "Start"
     }, {
       value: "center",
-      label: "center"
+      label: "Center"
     }, {
       value: "flex-end",
-      label: "right"
+      label: "End"
     }],
     onChange: setTabPosition,
     value: attributes.tabPosition,
     label: "Justify: "
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalNumberControl, {
+    suffix: "px",
+    onChange: value => setAttributes({
+      tabTitleWidth: value
+    }),
+    value: attributes.tabTitleWidth,
+    label: "Tab Title Width",
+    labelPosition: "top"
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FlexBlock, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalInputControl, {
     type: "number",
     label: "Tab Title Margin",
@@ -514,8 +538,10 @@ const Inspector = _ref => {
     initialOpen: true,
     colorSettings: tabColors
   }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-    title: "Tab Titles"
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalInputControl, {
+    title: "More"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Flex, {
+    direction: "column"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalInputControl, {
     type: "number",
     label: "Tab Content Padding",
     onChange: value => setAttributes({
@@ -535,7 +561,7 @@ const Inspector = _ref => {
     value: attributes.majorGap,
     labelPosition: "side",
     suffix: "px"
-  })))));
+  }))))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Inspector);
 
@@ -555,6 +581,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _edit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./edit */ "./src/tabs/edit.js");
 
 /**
  * React hook that is used to mark the block wrapper element.
@@ -562,6 +589,7 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
+
 
 
 /**
@@ -579,19 +607,33 @@ function save(_ref) {
   } = _ref;
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps.save(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tabs-container",
-    "data-attributes": JSON.stringify(attributes)
+    "data-attributes": JSON.stringify(attributes),
+    style: {
+      gap: `${attributes.majorGap}px`,
+      flexDirection: `${attributes.orientation === "Horizontal" ? "column" : "row"}`
+    }
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "block-salad-tab-titles-container"
+    className: "block-salad-tab-titles-container",
+    style: {
+      justifyContent: attributes.tabPosition,
+      gap: `${attributes.minorGap}px`,
+      flexDirection: `${attributes.orientation === "Horizontal" ? "row" : "column"}`
+    }
   }, attributes.tabTitles.map((title, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.RichText.Content, {
     value: title,
     className: "block-salad-tab-title",
     "data-titleIndex": index,
     tagName: "p",
-    style: {
-      cursor: "pointer"
-    }
+    style: index === attributes.activeTab ? (0,_edit__WEBPACK_IMPORTED_MODULE_2__.tabTitleStyle)(attributes, "active") : (0,_edit__WEBPACK_IMPORTED_MODULE_2__.tabTitleStyle)(attributes, "inactive")
   }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "block-salad-tab-content-container"
+    className: "block-salad-tab-content-container",
+    style: {
+      ...(attributes.tabStyle === 'Tabbed' && {
+        color: attributes.activeColor,
+        backgroundColor: attributes.activeBGColor
+      }),
+      padding: `${attributes.tabContentPadding}px`
+    }
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.InnerBlocks.Content, null))));
 }
 
@@ -707,7 +749,7 @@ module.exports = window["wp"]["primitives"];
   \*****************************/
 /***/ ((module) => {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"block-salad/tabs","version":"0.1.0","title":"tabs","keywords":["Block Salad","tabs"],"category":"blocksalad","icon":"smiley","description":"Example block scaffolded with Create Block tool.","attributes":{"tabTitles":{"type":"array","default":[""]},"activeTab":{"type":"number","default":0},"tabStyle":{"type":"string","default":"Tabbed"},"activeColor":{"type":"string","default":"#000000"},"inactiveColor":{"type":"string","default":"#2e2e2e"},"activeBGColor":{"type":"string","default":"#fafafa"},"inactiveBGColor":{"type":"string","default":"#dddddd"},"tabTitlePadding":{"type":"number","default":16},"tabContentPadding":{"type":"number","default":16},"majorGap":{"type":"string","default":"0"},"minorGap":{"type":"string","default":"0"},"border":{"type":"object","default":{"style":"solid","width":"1px"}},"borderRadius":{"type":"string","default":"0"},"strokePosition":{"type":"string","default":"Top"},"tabPosition":{"type":"string","default":"flex-start"}},"providesContext":{"block-salad/activeTab":"activeTab"},"supports":{"html":false},"textdomain":"block-salad","editorScript":"file:./index.js","viewScript":"file:./frontend.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"block-salad/tabs","version":"0.1.0","title":"tabs","keywords":["Block Salad","tabs"],"category":"blocksalad","icon":"smiley","description":"Example block scaffolded with Create Block tool.","attributes":{"tabTitles":{"type":"array","default":[""]},"activeTab":{"type":"number","default":0},"orientation":{"type":"string","default":"Horizontal"},"tabTitleWidth":{"type":"number","default":100},"tabStyle":{"type":"string","default":"Tabbed"},"activeColor":{"type":"string","default":"#000000"},"inactiveColor":{"type":"string","default":"#7e7e7e"},"activeBGColor":{"type":"string","default":"#fafafa"},"inactiveBGColor":{"type":"string","default":"#eeeeee"},"tabTitlePadding":{"type":"number","default":16},"tabContentPadding":{"type":"number","default":16},"majorGap":{"type":"string","default":"0"},"minorGap":{"type":"string","default":"0"},"activeBorder":{"type":"object","default":{"style":"solid","width":"4px"}},"inactiveBorder":{"type":"object","default":{"style":"solid","width":"1px"}},"borderRadius":{"type":"string","default":"0"},"strokePosition":{"type":"string","default":"Top"},"tabPosition":{"type":"string","default":"flex-start"}},"providesContext":{"block-salad/activeTab":"activeTab"},"supports":{"html":false},"textdomain":"block-salad","editorScript":"file:./index.js","viewScript":"file:./frontend.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

@@ -12,8 +12,12 @@
 		display: flex;
 		align-items: center;
 		.block-salad-tab-title {
-			width: fit-content;
+			display:flex;
+			justify-content:center;
 			padding: 16px;
+			overflow:hidden;
+			text-overflow: ellipsis;
+  white-space: nowrap;
 		}
 	}
 	.block-salad-tab-content-container {
