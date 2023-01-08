@@ -1,4 +1,24 @@
 /*!*********************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./src/tabs/editor.scss ***!
   \*********************************************************************************************************************************************************************************************************************************************/
+.block-salad-tab-title {
+  position: relative;
+}
+.block-salad-tab-title .shift-tab-left {
+  transform: rotate(-45deg);
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+.block-salad-tab-title .shift-tab-right {
+  transform: rotate(135deg);
+  bottom: 0;
+  position: absolute;
+  right: 0;
+}
+.block-salad-tab-title .remove-tab {
+  position: absolute;
+  right: 0;
+}
 
+/*# sourceMappingURL=index.css.map*/

@@ -97,9 +97,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _inspector__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./inspector */ "./src/tabs/inspector.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/icon/index.js");
-/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/plus.js");
-/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./editor.scss */ "./src/tabs/editor.scss");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/icon/index.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/plus.js");
+/* harmony import */ var array_move__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! array-move */ "./node_modules/array-move/index.js");
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./editor.scss */ "./src/tabs/editor.scss");
 
 /**
  * Retrieves the translation of text.
@@ -117,7 +118,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// import {  } from "@wordpress/components";
+
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -138,7 +139,7 @@ __webpack_require__.r(__webpack_exports__);
 function tabTitleStyle(attributes, state) {
   let activeStyle = {
     padding: `${attributes.tabTitlePadding}px`,
-    width: `${attributes.tabTitleWidth}px`
+    minWidth: `${attributes.tabTitleWidth}px`
   };
   let inactiveStyle = {
     padding: `${attributes.tabTitlePadding}px`,
@@ -154,7 +155,7 @@ function tabTitleStyle(attributes, state) {
         activeStyle["color"] = attributes.activeColor;
         return activeStyle;
       } else {
-        inactiveStyle['backgroundColor'] = attributes.inactiveBGColor;
+        inactiveStyle["backgroundColor"] = attributes.inactiveBGColor;
         inactiveStyle["color"] = attributes.inactiveColor;
         return inactiveStyle;
       }
@@ -164,7 +165,6 @@ function tabTitleStyle(attributes, state) {
         const borderString = `${attributes.activeBorder.width} ${attributes.activeBorder.style} ${attributes.activeBorder.color || attributes.activeColor}`;
         activeStyle["borderRadius"] = attributes.borderRadius;
         activeStyle[`border${attributes.strokePosition}`] = borderString;
-        console.log("lined style", activeStyle);
         return activeStyle;
       } else {
         const borderString = `${attributes.inactiveBorder.width} ${attributes.inactiveBorder.style} ${attributes.inactiveBorder.color || attributes.inactiveColor}`;
@@ -198,8 +198,7 @@ function Edit(_ref) {
   const activeTab = attributes.activeTab;
   function getTabTitles() {
     console.log("block", block, "block.innerBlocks", block.innerBlocks[block.innerBlocks.length - 1]);
-    console.log("getBlockType tab-content", getBlockType("block-salad/tab-content"));
-    console.log("getBlockType tabs", getBlockType("block-salad/tabs"));
+    updateBlockOrder();
   }
   function updateTabTitlesInput(newTitle, index) {
     const newTabTitles = tabTitles.map(title => title);
@@ -228,7 +227,75 @@ function Edit(_ref) {
     setAttributes({
       activeTab: newTabTitles.length - 1
     });
-    console.log("new title", newTabTitles);
+    updateBlockOrder();
+  }
+  function updateBlockOrder() {
+    setAttributes({
+      blockOrder: block.innerBlocks.map(block => block.attributes.index)
+    });
+    console.log("new blockOrder", block.innerBlocks.map(block => block.attributes.index));
+  }
+  function removeTab(targetIndex) {
+    const newTabTitles = tabTitles.filter((title, index) => index !== targetIndex);
+    setAttributes({
+      tabTitles: newTabTitles
+    });
+    removeBlock(block.innerBlocks[targetIndex].clientId);
+    block.innerBlocks.forEach((innerBlock, newIndex) => {
+      if (newIndex > targetIndex) updateBlockAttributes(innerBlock.clientId, {
+        index: newIndex - 1
+      });
+      console.log("innerBlock", innerBlock);
+    });
+    setAttributes({
+      activeTab: newTabTitles.length - 1
+    });
+    updateBlockOrder();
+  }
+  function shiftRight(targetIndex) {
+    let newTabTitles = tabTitles;
+    newTabTitles = (0,array_move__WEBPACK_IMPORTED_MODULE_4__.arrayMoveImmutable)(newTabTitles, targetIndex, targetIndex + 1);
+    setAttributes({
+      tabTitles: newTabTitles
+    });
+    setAttributes({
+      activeTab: targetIndex + 1
+    });
+    block.innerBlocks.forEach(innerBlock => {
+      if (innerBlock.attributes.index === targetIndex) {
+        updateBlockAttributes(innerBlock.clientId, {
+          index: innerBlock.attributes.index += 1
+        });
+      } else if (innerBlock.attributes.index === targetIndex + 1) {
+        updateBlockAttributes(innerBlock.clientId, {
+          index: innerBlock.attributes.index -= 1
+        });
+      }
+    });
+    updateBlockOrder();
+  }
+  function shiftLeft(targetIndex) {
+    let newTabTitles = tabTitles;
+    newTabTitles = (0,array_move__WEBPACK_IMPORTED_MODULE_4__.arrayMoveImmutable)(newTabTitles, targetIndex, targetIndex - 1);
+    setAttributes({
+      tabTitles: newTabTitles
+    });
+    block.innerBlocks.forEach(innerBlock => {
+      if (innerBlock.attributes.index === targetIndex) {
+        updateBlockAttributes(innerBlock.clientId, {
+          index: innerBlock.attributes.index -= 1
+        });
+        console.log("end not reach -1");
+      } else if (innerBlock.attributes.index === targetIndex - 1) {
+        updateBlockAttributes(innerBlock.clientId, {
+          index: innerBlock.attributes.index += 1
+        });
+      }
+    });
+    setAttributes({
+      activeTab: targetIndex - 1
+    });
+    updateBlockOrder();
   }
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tabs-container",
@@ -236,31 +303,55 @@ function Edit(_ref) {
       gap: `${attributes.majorGap}px`,
       flexDirection: `${attributes.orientation === "Horizontal" ? "column" : "row"}`
     }
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    onClick: getTabTitles
+  }, "Get titles"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: `block-salad-tab-titles-container`,
     style: {
       justifyContent: attributes.tabPosition,
       gap: `${attributes.minorGap}px`,
       flexDirection: `${attributes.orientation === "Horizontal" ? "row" : "column"}`
     }
-  }, tabTitles.map((title, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
-    value: title,
+  }, tabTitles.map((title, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tab-title",
-    placeholder: "Enter Title",
-    onClick: () => onClickTabTitle(index),
-    onChange: value => updateTabTitlesInput(value, index),
     style: index === activeTab ? tabTitleStyle(attributes, "active") : tabTitleStyle(attributes, "inactive")
-  }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_icons__WEBPACK_IMPORTED_MODULE_5__["default"], {
-    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"],
-    onClick: addTab,
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
+    value: title,
+    placeholder: "Enter Title",
+    onChange: value => updateTabTitlesInput(value, index),
+    tagName: "p",
+    onClick: () => onClickTabTitle(index)
+  }), index === activeTab && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, " ", index !== 0 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    class: "dashicons dashicons-arrow-up-alt shift-tab-left block-salad-admin-icons ",
+    onClick: () => shiftLeft(index),
     style: {
       cursor: "pointer"
     }
+  }), tabTitles.length > 1 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    onClick: () => removeTab(index),
+    style: {
+      color: "red",
+      cursor: "pointer"
+    },
+    className: "dashicons dashicons-minus block-salad-admin-icons remove-tab"
+  }), index !== tabTitles.length - 1 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    class: "dashicons dashicons-arrow-up-alt shift-tab-right block-salad-admin-icons ",
+    onClick: () => shiftRight(index),
+    style: {
+      cursor: "pointer"
+    }
+  }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"], {
+    icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"],
+    onClick: addTab,
+    style: {
+      cursor: "pointer"
+    },
+    className: "block-salad-admin-icons"
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "block-salad-tab-content-container",
     style: {
       backgroundColor: attributes.tabStyle == "Tabbed" && attributes.activeBGColor,
-      ...(attributes.tabStyle === 'Tabbed' && {
+      ...(attributes.tabStyle === "Tabbed" && {
         color: attributes.activeColor
       }),
       padding: `${attributes.tabContentPadding}px`
@@ -743,13 +834,44 @@ module.exports = window["wp"]["primitives"];
 
 /***/ }),
 
+/***/ "./node_modules/array-move/index.js":
+/*!******************************************!*\
+  !*** ./node_modules/array-move/index.js ***!
+  \******************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "arrayMoveImmutable": () => (/* binding */ arrayMoveImmutable),
+/* harmony export */   "arrayMoveMutable": () => (/* binding */ arrayMoveMutable)
+/* harmony export */ });
+function arrayMoveMutable(array, fromIndex, toIndex) {
+	const startIndex = fromIndex < 0 ? array.length + fromIndex : fromIndex;
+
+	if (startIndex >= 0 && startIndex < array.length) {
+		const endIndex = toIndex < 0 ? array.length + toIndex : toIndex;
+
+		const [item] = array.splice(fromIndex, 1);
+		array.splice(endIndex, 0, item);
+	}
+}
+
+function arrayMoveImmutable(array, fromIndex, toIndex) {
+	array = [...array];
+	arrayMoveMutable(array, fromIndex, toIndex);
+	return array;
+}
+
+
+/***/ }),
+
 /***/ "./src/tabs/block.json":
 /*!*****************************!*\
   !*** ./src/tabs/block.json ***!
   \*****************************/
 /***/ ((module) => {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"block-salad/tabs","version":"0.1.0","title":"tabs","keywords":["Block Salad","tabs"],"category":"blocksalad","icon":"smiley","description":"Example block scaffolded with Create Block tool.","attributes":{"tabTitles":{"type":"array","default":[""]},"activeTab":{"type":"number","default":0},"orientation":{"type":"string","default":"Horizontal"},"tabTitleWidth":{"type":"number","default":100},"tabStyle":{"type":"string","default":"Tabbed"},"activeColor":{"type":"string","default":"#000000"},"inactiveColor":{"type":"string","default":"#7e7e7e"},"activeBGColor":{"type":"string","default":"#fafafa"},"inactiveBGColor":{"type":"string","default":"#eeeeee"},"tabTitlePadding":{"type":"number","default":16},"tabContentPadding":{"type":"number","default":16},"majorGap":{"type":"string","default":"0"},"minorGap":{"type":"string","default":"0"},"activeBorder":{"type":"object","default":{"style":"solid","width":"4px"}},"inactiveBorder":{"type":"object","default":{"style":"solid","width":"1px"}},"borderRadius":{"type":"string","default":"0"},"strokePosition":{"type":"string","default":"Top"},"tabPosition":{"type":"string","default":"flex-start"}},"providesContext":{"block-salad/activeTab":"activeTab"},"supports":{"html":false},"textdomain":"block-salad","editorScript":"file:./index.js","viewScript":"file:./frontend.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"block-salad/tabs","version":"0.1.0","title":"tabs","keywords":["Block Salad","tabs"],"category":"blocksalad","icon":"table-row-after","description":"Example block scaffolded with Create Block tool.","attributes":{"tabTitles":{"type":"array","default":[""]},"activeTab":{"type":"number","default":0},"orientation":{"type":"string","default":"Horizontal"},"tabTitleWidth":{"type":"number","default":100},"tabStyle":{"type":"string","default":"Tabbed"},"blockOrder":{"type":"array","default":[0]},"activeColor":{"type":"string","default":"#000000"},"inactiveColor":{"type":"string","default":"#7e7e7e"},"activeBGColor":{"type":"string","default":"#fafafa"},"inactiveBGColor":{"type":"string","default":"#eeeeee"},"tabTitlePadding":{"type":"number","default":16},"tabContentPadding":{"type":"number","default":16},"majorGap":{"type":"string","default":"0"},"minorGap":{"type":"string","default":"0"},"activeBorder":{"type":"object","default":{"style":"solid","width":"4px"}},"inactiveBorder":{"type":"object","default":{"style":"solid","width":"1px"}},"borderRadius":{"type":"string","default":"0"},"strokePosition":{"type":"string","default":"Top"},"tabPosition":{"type":"string","default":"flex-start"}},"providesContext":{"block-salad/activeTab":"activeTab"},"supports":{"html":false},"textdomain":"block-salad","editorScript":"file:./index.js","viewScript":"file:./frontend.js","editorStyle":"file:./index.css","style":"file:./style-index.css"}');
 
 /***/ })
 

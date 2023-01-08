@@ -23,6 +23,9 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.block-salad-tabs-container .block-salad-tab-titles-container .block-salad-tab-title p {
+  margin: 0;
+}
 .block-salad-tabs-container .block-salad-tab-content-container {
   padding: 16px;
   min-height: 48px;

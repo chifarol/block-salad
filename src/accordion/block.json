@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "block-salad/accordion",
+	"version": "0.1.0",
+	"title": "Accordion",
+	"keywords": ["Block Salad, accordion, toggle"],
+	"category": "post",
+	"icon": "menu-alt",
+	"description": "Inserts an accordion block for toggling contents",
+	"attributes": {
+		"activeTabs": {
+			"type": "array",
+			"default": []
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "block-salad",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css"
+}

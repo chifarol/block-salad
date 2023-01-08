@@ -9,7 +9,7 @@
     "tabs"
   ],
   "category": "blocksalad",
-  "icon": "smiley",
+  "icon": "table-row-after",
   "description": "Example block scaffolded with Create Block tool.",
   "attributes": {
     "tabTitles": {
@@ -33,6 +33,12 @@
     "tabStyle": {
       "type": "string",
       "default": "Tabbed"
+    },
+    "blockOrder": {
+      "type": "array",
+      "default": [
+        0
+      ]
     },
     "activeColor": {
       "type": "string",

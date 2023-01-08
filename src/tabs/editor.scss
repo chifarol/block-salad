@@ -1,0 +1,19 @@
+.block-salad-tab-title {
+	position: relative;
+	.shift-tab-left {
+		transform: rotate(-45deg);
+		top: 0;
+		left: 0;
+		position: absolute;
+	}
+	.shift-tab-right {
+		transform: rotate(135deg);
+		bottom: 0;
+		position: absolute;
+		right: 0;
+	}
+	.remove-tab {
+		position: absolute;
+		right: 0;
+	}
+}

@@ -4,7 +4,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
  */
 import { __ } from "@wordpress/i18n";
- 
+
 /**
  * React hook that is used to mark the block wrapper element.
  * It provides all the necessary props like the class name.
@@ -15,7 +15,7 @@ import { useBlockProps, InnerBlocks, RichText } from "@wordpress/block-editor";
 
 import Inspector from "./inspector";
 import { Icon, check, plus, minus } from "@wordpress/icons";
-// import {  } from "@wordpress/components";
+import { arrayMoveImmutable } from "array-move";
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -33,27 +33,27 @@ import "./editor.scss";
  *
  * @return {WPElement} Element to render.
  */
- export function tabTitleStyle(attributes,state) {
+export function tabTitleStyle(attributes, state) {
 	let activeStyle = {
 		padding: `${attributes.tabTitlePadding}px`,
-		width:`${attributes.tabTitleWidth}px`
+		minWidth: `${attributes.tabTitleWidth}px`,
 	};
 	let inactiveStyle = {
 		padding: `${attributes.tabTitlePadding}px`,
-		width:`${attributes.tabTitleWidth}px`
+		width: `${attributes.tabTitleWidth}px`,
 	};
 	switch (attributes.tabStyle) {
 		case "Tabbed":
 			if (state === "active") {
-				activeStyle["backgroundColor"]= attributes.activeBGColor;
-				activeStyle["color"]= attributes.activeColor;
+				activeStyle["backgroundColor"] = attributes.activeBGColor;
+				activeStyle["color"] = attributes.activeColor;
 				activeStyle["borderRadius"] = attributes.borderRadius;
 				activeStyle["backgroundColor"] = attributes.activeBGColor;
 				activeStyle["color"] = attributes.activeColor;
 				return activeStyle;
 			} else {
-				 inactiveStyle['backgroundColor']=attributes.inactiveBGColor;
-				 inactiveStyle["color"]= attributes.inactiveColor;
+				inactiveStyle["backgroundColor"] = attributes.inactiveBGColor;
+				inactiveStyle["color"] = attributes.inactiveColor;
 				return inactiveStyle;
 			}
 			break;
@@ -64,7 +64,6 @@ import "./editor.scss";
 				} ${attributes.activeBorder.color || attributes.activeColor}`;
 				activeStyle["borderRadius"] = attributes.borderRadius;
 				activeStyle[`border${attributes.strokePosition}`] = borderString;
-				console.log("lined style", activeStyle);
 				return activeStyle;
 			} else {
 				const borderString = `${attributes.inactiveBorder.width} ${
@@ -74,7 +73,6 @@ import "./editor.scss";
 				return inactiveStyle;
 			}
 			break;
-		
 
 		default:
 			break;
@@ -106,11 +104,7 @@ export default function Edit({
 			"block.innerBlocks",
 			block.innerBlocks[block.innerBlocks.length - 1]
 		);
-		console.log(
-			"getBlockType tab-content",
-			getBlockType("block-salad/tab-content")
-		);
-		console.log("getBlockType tabs", getBlockType("block-salad/tabs"));
+		updateBlockOrder();
 	}
 	function updateTabTitlesInput(newTitle, index) {
 		const newTabTitles = tabTitles.map((title) => title);
@@ -135,49 +129,160 @@ export default function Edit({
 		]);
 		setAttributes({ activeTab: newTabTitles.length - 1 });
 
-		console.log("new title", newTabTitles);
+		updateBlockOrder();
 	}
-	
+	function updateBlockOrder() {
+		setAttributes({
+			blockOrder: block.innerBlocks.map((block) => block.attributes.index),
+		});
+		console.log(
+			"new blockOrder",
+			block.innerBlocks.map((block) => block.attributes.index)
+		);
+	}
+	function removeTab(targetIndex) {
+		const newTabTitles = tabTitles.filter(
+			(title, index) => index !== targetIndex
+		);
+		setAttributes({ tabTitles: newTabTitles });
+		removeBlock(block.innerBlocks[targetIndex].clientId);
+		block.innerBlocks.forEach((innerBlock, newIndex) => {
+			if (newIndex > targetIndex)
+				updateBlockAttributes(innerBlock.clientId, { index: newIndex - 1 });
+			console.log("innerBlock", innerBlock);
+		});
+		setAttributes({ activeTab: newTabTitles.length - 1 });
+		updateBlockOrder();
+	}
+	function shiftRight(targetIndex) {
+		let newTabTitles = tabTitles;
+		newTabTitles = arrayMoveImmutable(
+			newTabTitles,
+			targetIndex,
+			targetIndex + 1
+		);
+		setAttributes({ tabTitles: newTabTitles });
+		setAttributes({ activeTab: targetIndex + 1 });
+		block.innerBlocks.forEach((innerBlock) => {
+			if (innerBlock.attributes.index === targetIndex) {
+				updateBlockAttributes(innerBlock.clientId, {
+					index: (innerBlock.attributes.index += 1),
+				});
+			} else if (innerBlock.attributes.index === targetIndex + 1) {
+				updateBlockAttributes(innerBlock.clientId, {
+					index: (innerBlock.attributes.index -= 1),
+				});
+			}
+		});
+		updateBlockOrder();
+	}
+	function shiftLeft(targetIndex) {
+		let newTabTitles = tabTitles;
+		newTabTitles = arrayMoveImmutable(
+			newTabTitles,
+			targetIndex,
+			targetIndex - 1
+		);
+		setAttributes({ tabTitles: newTabTitles });
+		block.innerBlocks.forEach((innerBlock) => {
+			if (innerBlock.attributes.index === targetIndex) {
+				updateBlockAttributes(innerBlock.clientId, {
+					index: (innerBlock.attributes.index -= 1),
+				});
+				console.log("end not reach -1");
+			} else if (innerBlock.attributes.index === targetIndex - 1) {
+				updateBlockAttributes(innerBlock.clientId, {
+					index: (innerBlock.attributes.index += 1),
+				});
+			}
+		});
+		setAttributes({ activeTab: targetIndex - 1 });
+		updateBlockOrder();
+	}
 
 	return (
 		<div {...useBlockProps()}>
 			<div
 				className="block-salad-tabs-container"
-				style={{ gap: `${attributes.majorGap}px`,flexDirection:`${attributes.orientation==="Horizontal"?"column":"row"}` }}
+				style={{
+					gap: `${attributes.majorGap}px`,
+					flexDirection: `${
+						attributes.orientation === "Horizontal" ? "column" : "row"
+					}`,
+				}}
 			>
+				<span onClick={getTabTitles}>Get titles</span>
 				<div
 					className={`block-salad-tab-titles-container`}
 					style={{
 						justifyContent: attributes.tabPosition,
 						gap: `${attributes.minorGap}px`,
-						flexDirection:`${attributes.orientation==="Horizontal"?"row":"column"}`,
-						
+						flexDirection: `${
+							attributes.orientation === "Horizontal" ? "row" : "column"
+						}`,
 					}}
 				>
 					{tabTitles.map((title, index) => (
 						<>
-							<RichText
-								value={title}
+							<div
 								className="block-salad-tab-title"
-								placeholder="Enter Title"
-								onClick={() => onClickTabTitle(index)}
-								onChange={(value) => updateTabTitlesInput(value, index)}
 								style={
 									index === activeTab
-										? tabTitleStyle(attributes,"active")
-										: tabTitleStyle(attributes,"inactive")
+										? tabTitleStyle(attributes, "active")
+										: tabTitleStyle(attributes, "inactive")
 								}
-							/>
-
+							>
+								<RichText
+									value={title}
+									placeholder="Enter Title"
+									onChange={(value) => updateTabTitlesInput(value, index)}
+									tagName="p"
+									onClick={() => onClickTabTitle(index)}
+								/>
+								{index === activeTab && (
+									<>
+										{" "}
+										{index !== 0 && (
+											<span
+												class="dashicons dashicons-arrow-up-alt shift-tab-left block-salad-admin-icons "
+												onClick={() => shiftLeft(index)}
+												style={{ cursor: "pointer" }}
+											></span>
+										)}
+										{tabTitles.length > 1 && (
+											<span
+												onClick={() => removeTab(index)}
+												style={{ color: "red", cursor: "pointer" }}
+												className="dashicons dashicons-minus block-salad-admin-icons remove-tab"
+											></span>
+										)}
+										{index !== tabTitles.length - 1 && (
+											<span
+												class="dashicons dashicons-arrow-up-alt shift-tab-right block-salad-admin-icons "
+												onClick={() => shiftRight(index)}
+												style={{ cursor: "pointer" }}
+											></span>
+										)}
+									</>
+								)}
+							</div>
 						</>
 					))}
-					<Icon icon={plus} onClick={addTab} style={{ cursor: "pointer" }} />
+					<Icon
+						icon={plus}
+						onClick={addTab}
+						style={{ cursor: "pointer" }}
+						className="block-salad-admin-icons"
+					/>
 				</div>
 				<div
 					className="block-salad-tab-content-container"
 					style={{
-						backgroundColor: attributes.tabStyle=="Tabbed"&&attributes.activeBGColor,
-						...(attributes.tabStyle==='Tabbed' && {color: attributes.activeColor}),
+						backgroundColor:
+							attributes.tabStyle == "Tabbed" && attributes.activeBGColor,
+						...(attributes.tabStyle === "Tabbed" && {
+							color: attributes.activeColor,
+						}),
 						padding: `${attributes.tabContentPadding}px`,
 					}}
 				>
